@@ -1,0 +1,17 @@
+{
+  "author": "Chakrit <versez@chakrit.net> (http://chakrit.net)",
+  "name": "versez",
+  "description": "versez website",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/chakrit/versez.git"
+  },
+  "main": "app",
+  "engines": {
+    "node": "~0.6.6"
+  },
+  "dependencies": {
+      },
+  "devDependencies": {}
+}
