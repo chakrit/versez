@@ -12,6 +12,9 @@
     "node": "~0.6.6"
   },
   "dependencies": {
-      },
+    "express": ">= 0.0.1",
+    "jade": ">= 0.0.1"
+    "socket.io": ">= 0.0.1"
+  },
   "devDependencies": {}
 }
