@@ -1,11 +1,24 @@
 var express = require('express')
-  , app = express.createServer();
+  , app = express.createServer()
+  , stylus = require('stylus')
+  ;
 
 app.configure(function(){
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(app.router);
     app.set('view engine', 'jade');
+    
+    app.use(stylus.middleware({ 
+      src: __dirname + '/public', 
+      dest: __dirname + '/public',
+      compile: function(str, path) {
+        return stylus(str)
+          .set('filename', path)
+      		.set('warn', true)
+          .set('compress', true);
+      }
+    }));
 });
 
 app.configure('development', function(){
