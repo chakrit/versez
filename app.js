@@ -4,7 +4,15 @@ var express = require('express')
   , v = require('./versez')
   ;
 
-console.log("\n\n\n\n");
+console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
+  "  _   _ ___________ _____ _____ ______\n" +
+  " | | | |  ___| ___ |  ___|  ___|___  /\n" +
+  " | | | | |__ | |_/ | `--.| |__    / / \n" +
+  " | | | |  __||    / `--. \\  __|  / /  \n" +
+  " \\ \\_/ / |___| |\\ \\/\\__/ / |___./ /___\n" +
+  "  \\___/\\____/\\_| \\_\\____/\\____/\\_____/\n");
+  
+console.log("\n\n");
 console.log("VERSEZ - v" + v.config.version);
 console.log("---------------");
 
