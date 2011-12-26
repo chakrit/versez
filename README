@@ -1,3 +1,7 @@
 Phat - view
 Chakrit - model/redis
 Tor - controller
+
+TODO
+----
+* Ask @chakrit about JAM to use the model layer.

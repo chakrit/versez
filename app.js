@@ -1,7 +1,15 @@
 var express = require('express')
-  , app = express.createServer()
   , stylus = require('stylus')
+  , app = express.createServer()
+  , v = require('./versez')
   ;
+
+console.log("\n\n\n\n");
+console.log("VERSEZ - v" + v.config.version);
+console.log("---------------");
+
+// __________________________________________________________________
+console.log("Configuring app...");
 
 app.configure(function(){
     app.use(express.methodOverride());
@@ -32,10 +40,17 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', function(req, res){
-  res.render('index', { title: 'My Site' });
-});
 
-var port = process.env.PORT || 1337;
-console.log("Listening on " + port);
+// __________________________________________________________________
+console.log("Initializing controllers...");
+
+v.controller.init(app);
+
+
+// __________________________________________________________________
+console.log("Starting up...");
+
+var port = v.config.server.port || process.env.PORT || 80;
+console.log("Listening on port " + port);
 app.listen(port);
+

@@ -2,9 +2,12 @@
 // model.js - model layer entry point
 (function() {
 
+  // NOTE: A single client is re-used for the entire site
+  // supposedly it pipelines the commands so we should be good
   var jam = require('jam')
     , redis = require('redis')
-    , client = redis.createClient();
+    , cfg = require('./config')
+    , client = redis.createClient(cfg.redis.port, cfg.redis.host);
 
   // common redis extension to JAM
   // TODO: Actually could make use of prototypes in JAM so we
@@ -14,7 +17,7 @@
     { 'isOk': function(result) { this(result === '+OK'); }
     , 'asJson': function(result) { this(JSON.parse(result)); } };
 
-  // will explain later :)
+  // wrap redis calls into meaningful(?) APIs
   var model =
     { 'verses':
       { 'find': function(id) {
