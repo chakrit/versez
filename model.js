@@ -10,9 +10,6 @@
     , client = redis.createClient(cfg.redis.port, cfg.redis.host);
 
   // common redis extension to JAM
-  // TODO: Actually could make use of prototypes in JAM so we
-  //   can manipulate functions and add extensions/whatnot here
-  //   just like jQuery.fn === jQuery.prototype
   var jx =
     { 'isOk': function(result) { this(result === '+OK'); }
     , 'asJson': function(result) { this(JSON.parse(result)); } };
@@ -26,6 +23,9 @@
       , 'save': function(verse) {
           var json = JSON.stringify(verse);
           return jam.call(redis.set, 'v:' + verse.id, json)(jx.isOk);
+        }
+      , 'nextId': function() {
+          return jam.call(redis.incr, 'v:id');
         } }
     , 'users':
       { 'find': function(id) {
@@ -34,6 +34,9 @@
       , 'save': function(user) {
           var json = JSON.stringify(user);
           return jam.call(redis.set, 'u:' + user.id, json)(jx.isOk);
+        }
+      , 'nextId': function() {
+          return jam.call(redis.inc, 'u:id');
         } } };
 
   module.exports = model;
