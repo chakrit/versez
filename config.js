@@ -1,4 +1,3 @@
-
 // config.js - Define app-wide configuration
 (function() {
 
@@ -13,7 +12,7 @@
       { 'port': process.env.PORT || 1337 
       , 'host': 'localhost' } };
 
-  // environment specific setups
+  // TODO: Add environment specific setups here?
   module.exports = config;
 
 })();
