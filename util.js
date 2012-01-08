@@ -16,8 +16,17 @@
     return copy;
   };
 
+  // TODO: Replace with backbone's extend?
+  //   This is used in modelx.js file
+  function extend(obj, props) {
+    for (var x in props)
+      obj[x] = props[x];
+
+    return obj;
+  }
+
   // wire module exports
-  exports = ['modifyCopy'];
+  exports = ['modifyCopy', 'extend'];
   module.exports = {};
   for (var i in exports)
     module.exports[exports[i]] = eval(exports[i]);

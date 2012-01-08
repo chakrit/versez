@@ -1,44 +1,80 @@
 
-// model.js - model layer entry point
+// modelx.js - Re-attempt at a bit more OO model layer
 (function() {
 
-  // NOTE: A single client is re-used for the entire site
-  // supposedly it pipelines the commands so we should be good
-  var jam = require('jam')
-    , redis = require('redis')
+  var redis = require('redis')
+    , jam = require('jam')
     , cfg = require('./config')
-    , client = redis.createClient(cfg.redis.port, cfg.redis.host);
+    , util = require('./util')
+    , redisClient = redis.createClient(cfg.redis.port, cfg.redis.host);
 
-  // common redis extension to JAM
-  var jx =
-    { 'isOk': function(result) { this(result === '+OK'); }
-    , 'asJson': function(result) { this(JSON.parse(result)); } };
+  var m = { }
+    , ID_NEW = -1;
 
-  // wrap redis calls into meaningful(?) APIs
-  var model =
-    { 'verses':
-      { 'find': function(id) {
-          return jam.call(redis.get, 'v:' + id)(jx.asJson);
-        }
-      , 'save': function(verse) {
-          var json = JSON.stringify(verse);
-          return jam.call(redis.set, 'v:' + verse.id, json)(jx.isOk);
-        }
-      , 'nextId': function() {
-          return jam.call(redis.incr, 'v:id');
-        } }
-    , 'users':
-      { 'find': function(id) {
-          return jam.call(redis.get, 'u:' + id)(jx.asJson);
-        }
-      , 'save': function(user) {
-          var json = JSON.stringify(user);
-          return jam.call(redis.set, 'u:' + user.id, json)(jx.isOk);
-        }
-      , 'nextId': function() {
-          return jam.call(redis.inc, 'u:id');
-        } } };
+  // base model definition template
+  m.ModelBase = function() { };
+  m.ModelBase.prototype =
+    { '_id': ID_NEW
+    , '_type': "ModelBase" };
+    
+  function defineModel(name, defaults) {
+    var newModel = function() { };
+    util.extend(newModel.prototype = m.ModelBase, { '_type': name });
+    util.extend(newModel.prototype, defaults);
 
-  module.exports = model;
+    return newModel;
+  }
+
+  // model definitions
+  m.User = defineModel('User',
+    { 'username': null
+    , 'passwordHash': null
+    , 'joinDate': null
+    , 'lastLoginDate': null
+    , 'twitterId': null });
+
+  m.Verse = defineModel('Verse',
+    { 'text': null
+    , 'createDate': null
+    , 'authorId': null
+    , 'likes': null
+    , 'parentId': null });
+  
+  // repository functions
+  var h = // model helpers
+    { 'isOk': function(result) { return result == '+OK'; }
+    , 'asObj': function(json) { return JSON.parse(json); }
+    , 'asJson': function(obj) { return JSON.stringify(obj); } };
+
+  m.create = function(type) {
+    return new m[type];
+  };
+  
+  m.load = function(type, id) {
+    var key = 'v:' + type + ':' + id;
+    return jam.call(redis.get, key)(h.asJson);
+  };
+
+  m.save = function(obj) {
+    var j = jam.id; 
+
+    if (obj._id != ID_NEW) {
+      j = j.return(obj);
+    } else {
+      j = j.call(redis.get, 'v:' + obj._type + ':id')
+        (function(newId) {
+          obj._id = newId;
+          this(obj);
+        });
+    }
+
+    return j(function(obj) { 
+      redis.set('v:' + obj._type + ':' + obj._id, obj, this);
+    })(h.isOk);
+
+  };
+
+  // export the `m` object
+  module.exports = m;
 
 })();

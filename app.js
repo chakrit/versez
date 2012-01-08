@@ -1,8 +1,7 @@
 var express = require('express')
   , stylus = require('stylus')
   , app = express.createServer()
-  , v = require('./versez')
-  ;
+  , v = require('./versez');
 
 console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
   "  _   _ ___________ _____ _____ ______\n" +
@@ -20,6 +19,7 @@ console.log("---------------");
 console.log("Configuring app...");
 
 app.configure(function(){
+    app.use(express.logger());
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(app.router);
