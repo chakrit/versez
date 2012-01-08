@@ -12,6 +12,7 @@
     , child_process = require('child_process')
     , util = require('util')
     , util_ = require('./util')
+    , esc = require('./esc')
     , log = console.log; // TODO: Build a better log?
 
   // test environment / support functions
@@ -21,17 +22,6 @@
 
   // stats
   var count = { 'run': 0, 'pass': 0, 'fail': 0 };
-
-  // console escape codes
-  var esc =
-    { 'lineUp': '\033[2A'
-    , 'reset': '\033[0;37m'
-    , 'unbold': '\033[0m'
-    , 'bold': '\033[1m'
-    , 'white': '\033[0;37m'
-    , 'green': '\033[0;32m'
-    , 'red': '\033[0;31m'
-    , 'cyan': '\033[0;36m' };
 
   // run the tests // TODO: Run asynchronously/in clean environment?
   for (var i in tests) (function(test) {

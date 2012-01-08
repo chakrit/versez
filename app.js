@@ -1,9 +1,11 @@
 var express = require('express')
   , stylus = require('stylus')
+  , v = require('./versez')
+  , esc = require('./esc')
   , app = express.createServer()
-  , v = require('./versez');
+  , log = console.log;
 
-console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
+log(esc.cls + esc.cyan + 
   "  _   _ ___________ _____ _____ ______\n" +
   " | | | |  ___| ___ |  ___|  ___|___  /\n" +
   " | | | | |__ | |_/ | `--.| |__    / / \n" +
@@ -11,35 +13,35 @@ console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n" +
   " \\ \\_/ / |___| |\\ \\/\\__/ / |___./ /___\n" +
   "  \\___/\\____/\\_| \\_\\____/\\____/\\_____/\n");
   
-console.log("\n\n");
-console.log("VERSEZ - v" + v.config.version);
-console.log("---------------");
+log(esc.reset + esc.bold +
+  "VERSEZ - v" + v.config.version);
+log(esc.reset + "---------------");
 
 // __________________________________________________________________
-console.log("Configuring app...");
+log("Configuring app...");
 
 app.configure(function(){
-    app.use(express.logger());
-    app.use(express.methodOverride());
-    app.use(express.bodyParser());
-    app.use(app.router);
-    app.set('view engine', 'jade');
-    
-    app.use(stylus.middleware({ 
-      src: __dirname + '/public', 
-      dest: __dirname + '/public',
-      compile: function(str, path) {
-        return stylus(str)
-          .set('filename', path)
-      		.set('warn', true)
-          .set('compress', true);
-      }
-    }));
+  app.use(express.logger());
+  app.use(express.methodOverride());
+  app.use(express.bodyParser());
+  app.use(app.router);
+  app.set('view engine', 'jade');
+  
+  app.use(stylus.middleware({ 
+    src: __dirname + '/public', 
+    dest: __dirname + '/public',
+    compile: function(str, path) {
+      return stylus(str)
+        .set('filename', path)
+              .set('warn', true)
+        .set('compress', true);
+    }
+  }));
 });
 
 app.configure('development', function(){
-    app.use(express.static(__dirname + '/public'));
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  app.use(express.static(__dirname + '/public'));
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 app.configure('production', function(){
@@ -48,17 +50,12 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
-
 // __________________________________________________________________
-console.log("Initializing controllers...");
-
+log("Initializing controllers...");
 v.controller.init(app);
 
-
-// __________________________________________________________________
-console.log("Starting up...");
-
+log("Starting up...");
 var port = v.config.server.port || process.env.PORT || 80;
-console.log("Listening on port " + port);
+log("Listening on port " + port + "...");
 app.listen(port);
 
