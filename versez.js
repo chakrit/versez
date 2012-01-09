@@ -5,7 +5,6 @@
   module.exports =
     { 'model': require('./model')
     , 'config': require('./config')
-    , 'controller': require('./controller')
-    };
+    , 'controller': require('./controller') };
 
 })();
