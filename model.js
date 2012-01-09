@@ -1,5 +1,5 @@
 
-// modelx.js - Re-attempt at a bit more OO model layer
+// model.js - Versez model layer entry point
 (function() {
 
   var redis = require('redis')
@@ -36,9 +36,9 @@
   m.Verse = defineModel('Verse',
     { 'text': null
     , 'createDate': null
-    , 'authorId': null
-    , 'likes': null
-    , 'parentId': null });
+    , 'authorId': -1
+    , 'likes': 0
+    , 'parentId': -1 });
   
   // repository functions
   var h = // model helpers
