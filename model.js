@@ -61,7 +61,7 @@
     if (obj._id != ID_NEW) {
       j = j.return(obj);
     } else {
-      j = j.call(redis.get, 'v:' + obj._type + ':id')
+      j = j.call(redis.incr, 'v:' + obj._type + ':id')
         (function(newId) {
           obj._id = newId;
           this(obj);
@@ -71,7 +71,6 @@
     return j(function(obj) { 
       redis.set('v:' + obj._type + ':' + obj._id, obj, this);
     })(h.isOk);
-
   };
 
   // export the `m` object
