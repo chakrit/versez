@@ -105,11 +105,10 @@
 
   // print summary
   log('');
-  log(esc.cyan + esc.bold + 'Done.'
-    + esc.silver + ' - ' + (new Date().toString()) + esc.reset);
-  log(' [%d] ran', count.run);
+  log(esc.cyan + esc.bold + 'Done.' + esc.silver + ' - ' + new Date());
+  log(esc.silver + ' [%d] ran', count.run);
   log(esc.green + ' [%d] pass', count.pass);
-  log(esc.red + (count.fail > 0 ? esc.bold : '') + ' [%d] fail', count.fail);
+  log((count.fail > 0 ? esc.bold + esc.red : esc.gray) + ' [%d] fail', count.fail);
 
   log(esc.reset);
   process.exit(count.fail);

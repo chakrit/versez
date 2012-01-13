@@ -10,6 +10,7 @@
     , 'bold': '1m'
     , 'white': '0;0m'
     , 'silver': '0;37m'
+    , 'gray': '0;30m'
     , 'yellow': '0;33m'
     , 'green': '0;32m'
     , 'red': '1;91m'
