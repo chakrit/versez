@@ -16,6 +16,7 @@
       return test.substr(0, test.length - 3);
     });
 
+
   // test environment / support functions
   var count = { 'run': 0, 'pass': 0, 'fail': 0 };
 
@@ -54,6 +55,27 @@
     return env;
   };
 
+  
+  // extra assert helpers
+  assert.not = function() {
+    var args = Array.prototype.slice.apply(arguments);
+    args[0] = !args[0];
+    assert.ok.apply(assert, args);
+  };
+
+  assert.error = function(errName, func) {
+    try { func(); }
+    catch (e) {
+      if ((e instanceof Error) &&
+          (e.name === errName))
+        return; // expected
+
+      throw e; // not expected
+    }
+    
+    assert.ok(false, errName + ' expected.');
+  };
+
 
   // run the tests
   log(esc.cls);
@@ -62,16 +84,19 @@
     log(esc.cyan + esc.bold + '%s' + esc.reset, test);
 
     var env = createTestEnv()
-      , testPath = './tests/' + test
-      , module = require(testPath);
-
-    if (module.ignored) {
-      log(esc.yellow + '(ignored)');
-      return;
-    }
+      , testPath = './tests/' + test;
     
     try {
+      // load test module
+      var module = require(testPath);
+      if (module.ignored) {
+        log(esc.yellow + '(ignored)');
+        return;
+      }
+
+      // run the test
       module.call({ }, env, assert);
+
     } catch (e) {
       log(esc.red + 'TEST MODULE ERROR: ' + e.toString());
     }
@@ -80,7 +105,8 @@
 
   // print summary
   log('');
-  log(esc.cyan + esc.bold + 'Done.' + esc.reset);
+  log(esc.cyan + esc.bold + 'Done.'
+    + esc.silver + ' - ' + (new Date().toString()) + esc.reset);
   log(' [%d] ran', count.run);
   log(esc.green + ' [%d] pass', count.pass);
   log(esc.red + (count.fail > 0 ? esc.bold : '') + ' [%d] fail', count.fail);

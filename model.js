@@ -1,15 +1,29 @@
 
 // model.js - Versez model layer entry point
-(function() {
+(function(undefined) {
 
   var redis = require('redis')
     , jam = require('jam')
+    , _ = require('underscore')
     , cfg = require('./config')
-    , vutil = require('./vutil')
     , redisClient = redis.createClient(cfg.redis.port, cfg.redis.host);
 
   var m = { }
     , ID_NEW = -1;
+
+  // model utils
+  var isPrivate = function(name) { return !!name.match(/^_.*$/); };
+
+  var safeExtend = function(dest, src) {
+    for (var key in src) (function(key, value) {
+      if (isPrivate(key)) return;
+      if (value instanceof Function) return;
+
+      dest[key] = value;
+    })(key, src[key]);
+
+    return dest;
+  }
 
   // base model definition template
   m.ModelBase = function() { };
@@ -18,21 +32,15 @@
     , '_type': "ModelBase" };
 
   m.ModelBase.prototype.toJson = function() {
-    var obj = {};
-    for (var i in this) (function(i, value) {
-      if (value instanceof Function ||
-        value instanceof Array ||
-        (i && i.match(/^_.+/)))
-        return; // skip functions, arrays and private members
-
-      obj[i] = value;
-    })(i, this[i]);
+    return JSON.stringify(safeExtend({ }, this));
   };
     
   function defineModel(name, defaults) {
     var newModel = function() { };
-    vutil.extend(newModel.prototype = m.ModelBase, { '_type': name });
-    vutil.extend(newModel.prototype, defaults);
+    newModel.prototype = _.extend({ },
+      m.ModelBase.prototype,
+      defaults,
+      { _type: name });
 
     return newModel;
   }
@@ -52,14 +60,15 @@
     , 'likes': 0
     , 'parentId': -1 });
   
+
   // repository functions
   var h = // model helpers
     { 'isOk': function(result) { return result == '+OK'; }
     , 'asObj': function(json) { return JSON.parse(json); }
     , 'asJson': function(obj) { return JSON.stringify(obj); } };
 
-  m.create = function(type) {
-    return new m[type];
+  m.create = function(type, values) { 
+    return safeExtend(new m[type](), values);
   };
   
   m.load = function(type, id) {
