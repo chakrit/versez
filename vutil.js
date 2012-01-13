@@ -1,5 +1,6 @@
 
-// util.js - Site-wide utility functions
+// vutil.js - Site-wide utility functions
+//   needs the 'v' prefix since node already have a 'util' module
 (function() {
 
   // Returns a copy of the `obj` modified with stuff in `props`

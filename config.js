@@ -1,8 +1,6 @@
 // config.js - Define app-wide configuration
 (function() {
 
-  var util = require('./util');
-
   var config =
     { 'version': '0.0.1'
     , 'redis':

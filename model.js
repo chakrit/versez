@@ -5,7 +5,7 @@
   var redis = require('redis')
     , jam = require('jam')
     , cfg = require('./config')
-    , util = require('./util')
+    , vutil = require('./vutil')
     , redisClient = redis.createClient(cfg.redis.port, cfg.redis.host);
 
   var m = { }
@@ -31,8 +31,8 @@
     
   function defineModel(name, defaults) {
     var newModel = function() { };
-    util.extend(newModel.prototype = m.ModelBase, { '_type': name });
-    util.extend(newModel.prototype, defaults);
+    vutil.extend(newModel.prototype = m.ModelBase, { '_type': name });
+    vutil.extend(newModel.prototype, defaults);
 
     return newModel;
   }

@@ -3,8 +3,6 @@
 (function() {
 
   var assert = require('assert')
-    , util = require('util')
-    , util_ = require('./util')
     , esc = require('./esc')
     , log = console.log; // TODO: Build a better log?
 
