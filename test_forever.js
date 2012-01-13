@@ -37,12 +37,17 @@
   
 
   // watch loop
-  var watches = fs.readdirSync('./tests/')
-    .map(function(file) { return './tests/' + file; })
-    .map(function(file) { return new FileWatch(file); });
+  var files = fs
+    .readdirSync('./tests/')
+    .map(function(file) { return './tests/' + file; });
   
-  // include test.js script itself
-  watches.push(new FileWatch('./test.js'));
+  files.push.apply(files, fs.readdirSync('./'));
+
+  var watches = files
+    .filter(function(file) { // filter .js files only
+      return file.indexOf('.js', file.length - 3) !== -1;
+    })
+    .map(function(file) { return new FileWatch(file); });
 
   // actual watch/trigger loop
   var runTimer = { };
