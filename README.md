@@ -6,8 +6,9 @@ Tor - controller
 
 # TODO
 
+* Test deploy to heroku
+* Fix 0.4.7 build error
 * Ask @chakrit about JAM to use the model layer.
-* WORK!
 
 # Test HOW-TO
 
