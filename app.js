@@ -13,9 +13,8 @@ log(esc.cls + esc.cyan +
   " \\ \\_/ / |___| |\\ \\/\\__/ / |___./ /___\n" +
   "  \\___/\\____/\\_| \\_\\____/\\____/\\_____/\n");
   
-log(esc.reset + esc.bold +
-  "VERSEZ - v" + v.config.version);
-log(esc.reset + "---------------");
+log(esc.reset + esc.green + esc.bold +
+  "VERSEZ - v" + v.config.version + esc.silver);
 
 // __________________________________________________________________
 log("Configuring app...");
