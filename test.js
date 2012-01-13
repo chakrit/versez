@@ -42,8 +42,8 @@
       }
     };
 
-    env.testEval = function(code) {
-      env.test(code, function() {
+    env.testEval = function(code, summary) {
+      env.test(summary || code, function() {
         with (env.testEval.scope)
           assert.ok(eval(code));
       });
@@ -65,11 +65,17 @@
       , testPath = './tests/' + test
       , module = require(testPath);
 
-    if (module.ignored)
+    if (module.ignored) {
       log(esc.yellow + '(ignored)');
-    else
+      return;
+    }
+    
+    try {
       module.call({ }, env, assert);
-  
+    } catch (e) {
+      log(esc.red + 'TEST MODULE ERROR: ' + e.toString());
+    }
+    
   })(i, tests[i]);
 
   // print summary

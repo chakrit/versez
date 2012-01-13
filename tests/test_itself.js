@@ -2,11 +2,24 @@
 // test_basic.js - Test the test framework itself for some basic function
 module.exports = function(e, a) {
 
-  e.test('Should pass.', function() { });
+  e.testEval.scope =
+    { 'x': 1
+    , 'assert': a };
 
-  e.log('env.testEval.scope should works if x === 1');
-  e.testEval.scope = { x: 1 };
-  e.testEval('x === 1');
+  e.test('Should pass.', function() { });
+  
+  e.testEval('x === 1', 'testEval and testEval.scope is working');
+  e.test('assert.ok(true) is working.', function() { a.ok(true); });
+  e.test('assert.ok(false) is working.', function() {
+    try { a.ok(false); }
+    catch (e) {
+      a.ok(e instanceof Error);
+      a.ok(e.name === 'AssertionError');
+      return;
+    }
+    
+    throw new Error('assert.ok(false) is not throwing any excetions.');
+  });
   
 };
 

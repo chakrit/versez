@@ -2,6 +2,19 @@ Phat - view
 Chakrit - model/redis
 Tor - controller
 
+# TODO
+
+* Ask @chakrit about JAM to use the model layer.
+* WORK!
+
+# Test HOW-TO
+
+* `make test` or `node test.js` to run test 1 time.
+* `make` or `node test_forever.js` to spin a non-stop test loop.
+* `./tests/file.js` - Add a test file (and restart the test loop)
+
+Look in `sample.js` for sample code.
+
 # Node HOW-TO
 
 1. Ensure you're set for compiling stuff.
@@ -35,9 +48,4 @@ so just do:
 8. If you see a `+PONG\r\n+OK\r\n` then you should be good to go.
 9. If you want to install `redis-server` binary into your system for
    easy access, run `make install` inside the `tools/redis` directory.
-
-# TODO
-
-* Ask @chakrit about JAM to use the model layer.
-* WORK!
 
