@@ -1,7 +1,9 @@
 
-default: test_forever
+default: server
 
+server:
+	node app.js
 test:
 	node test.js
-test_forever:
-	node test_forever.js
+test_ci:
+	node test_ci.js

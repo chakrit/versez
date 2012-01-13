@@ -2,6 +2,8 @@ Phat - view
 Chakrit - model/redis
 Tor - controller
 
+`make` or `node app.js` to start local dev server.
+
 # TODO
 
 * Ask @chakrit about JAM to use the model layer.
@@ -10,8 +12,8 @@ Tor - controller
 # Test HOW-TO
 
 * `make test` or `node test.js` to run test 1 time.
-* `make` or `node test_forever.js` to spin a non-stop test loop.
-* `./tests/file.js` - Add a test file (and restart the test loop)
+* `make ci` or `node test_ci.js` to spin a non-stop test loop.
+* `touch ./tests/file.js` - Add a new test file (and restart the test loop)
 
 Look in `sample.js` for sample code.
 
