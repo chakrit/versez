@@ -2,35 +2,33 @@
 // test.js - Test starter file
 (function() {
 
-  // define list of tests (TODO: Scan the test folder and load all tests?)
-  var tests =
-    [ 'model_basic'
-    , 'app_basic'
-    , 'test_basic' ];
-
   var assert = require('assert')
-    , child_process = require('child_process')
     , util = require('util')
     , util_ = require('./util')
     , esc = require('./esc')
     , log = console.log; // TODO: Build a better log?
 
-  // test environment / support functions
-  var env =
-    { 'log': log 
-    , 'fail': function(reason) { throw { 'reason': reason }; } };
+  // scan and build list of test modules available
+  var tests = require('fs')
+    .readdirSync(__dirname + '/tests/')
+    .filter(function(test) { // filter .js files only
+      return test.indexOf('.js', test.length - 3) !== -1;
+    })
+    .map(function(test) { // change to require syntax
+      return test.substr(0, test.length - 3);
+    });
 
-  // stats
+  // test environment / support functions
   var count = { 'run': 0, 'pass': 0, 'fail': 0 };
 
-  // run the tests // TODO: Run asynchronously/in clean environment?
-  for (var i in tests) (function(test) {
-    var testEnv = util_.extend({ }, env);
+  var createTestEnv = function() {
+    var env = { };
+    env.log = function(msg) { console.log(esc.silver + msg); } 
+    env.fail = function(reason) { throw new Error(reason); };
 
-    // main test definition function
-    testEnv.test = function(summary, code) {
+    env.test = function(summary, code) {
       count.run++;
-      
+
       try {
         log('Running  ' + summary);
         log(esc.lineUp);
@@ -41,24 +39,44 @@
 
       } catch (e) {
         count.fail++;
-        log(esc.red + esc.bold + 'FAILED   ' + esc.reset + summary);
-        log(e);
+        log(esc.red + esc.bold + 'FAILED   ' + summary);
+        log(esc.silver + '         ' + e.toString());
       }
     };
 
-    // run the test module with fresh env
-    test = './tests/' + test;
+    env.testEval = function(code) {
+      env.test(code, function() {
+        with (env.testEval.scope)
+          assert.ok(eval(code));
+      });
+    };
 
-    log('');
-    log(esc.cyan + '%s', test);
-    log(esc.reset + '--------------------');
-    require(test).call({ }, testEnv, assert);
+    // empty (user-modifiable) scope for eval
+    env.testEval.scope = { };
+    return env;
+  };
+
+
+  // run the tests
+  log(esc.cls);
+
+  for (var i in tests) (function(i, test) {
+    log(esc.cyan + esc.bold + '%s' + esc.reset, test);
+
+    var env = createTestEnv()
+      , testPath = './tests/' + test
+      , module = require(testPath);
+
+    if (module.ignored)
+      log(esc.yellow + '(ignored)');
+    else
+      module.call({ }, env, assert);
   
-  })(tests[i]);
+  })(i, tests[i]);
 
+  // print summary
   log('');
-  log(esc.cyan + 'Done.' + esc.reset);
-  log(esc.reset + '--------------------');
+  log(esc.cyan + esc.bold + 'Done.' + esc.reset);
   log(' [%d] ran', count.run);
   log(esc.green + ' [%d] pass', count.pass);
   log(esc.red + (count.fail > 0 ? esc.bold : '') + ' [%d] fail', count.fail);

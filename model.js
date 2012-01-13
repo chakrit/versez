@@ -16,6 +16,18 @@
   m.ModelBase.prototype =
     { '_id': ID_NEW
     , '_type': "ModelBase" };
+
+  m.ModelBase.prototype.toJson = function() {
+    var obj = {};
+    for (var i in this) (function(i, value) {
+      if (value instanceof Function ||
+        value instanceof Array ||
+        (i && i.match(/^_.+/)))
+        return; // skip functions, arrays and private members
+
+      obj[i] = value;
+    })(i, this[i]);
+  };
     
   function defineModel(name, defaults) {
     var newModel = function() { };

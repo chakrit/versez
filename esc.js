@@ -5,13 +5,16 @@
   var esc =
     { 'lineUp': '2A'
     , 'cls': '2J'
-    , 'reset': '0;37m'
+    , 'reset': '0m'
     , 'unbold': '0m'
     , 'bold': '1m'
-    , 'white': '0;37m'
+    , 'white': '0;0m'
+    , 'silver': '0;37m'
+    , 'yellow': '0;33m'
     , 'green': '0;32m'
-    , 'red': '0;31m'
-    , 'cyan': '0;36m' };
+    , 'red': '1;91m'
+    , 'cyan': '0;36m'
+    , 'bgRed': '41m' };
 
   // add esc char
   for (var i in esc) esc[i] = '\033[' + esc[i];
