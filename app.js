@@ -1,20 +1,21 @@
 var express = require('express')
   , stylus = require('stylus')
   , v = require('./versez')
+  , log = require('./log')
   , esc = require('./esc')
-  , app = express.createServer()
-  , log = console.log;
+  , app = express.createServer();
 
-log(esc.cls + esc.cyan + 
-  "  _   _ ___________ _____ _____ ______\n" +
-  " | | | |  ___| ___ |  ___|  ___|___  /\n" +
-  " | | | | |__ | |_/ | `--.| |__    / / \n" +
-  " | | | |  __||    / `--. \\  __|  / /  \n" +
-  " \\ \\_/ / |___| |\\ \\/\\__/ / |___./ /___\n" +
-  "  \\___/\\____/\\_| \\_\\____/\\____/\\_____/\n");
+log(esc.cls + esc.cyan +
+  "   _   _ ___________ _____ _____ ______\n" +
+  "  | | | |  ___| ___ |  ___|  ___|___  /\n" +
+  "  | | | | |__ | |_/ | `--.| |__    / / \n" +
+  "  | | | |  __||    / `--. \\  __|  / /  \n" +
+  "  \\ \\_/ / |___| |\\ \\/\\__/ / |___./ /___\n" +
+  "   \\___/\\____/\\_| \\_\\____/\\____/\\_____/\n");
   
-log(esc.reset + esc.green + esc.bold +
-  "VERSEZ - v" + v.config.version + esc.silver);
+log('');
+log.h1("VERSEZ - v" + v.config.version);
+log(esc.silver);
 
 // __________________________________________________________________
 log("Configuring app...");

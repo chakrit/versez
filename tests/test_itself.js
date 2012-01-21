@@ -1,7 +1,19 @@
 
 // test_basic.js - Test the test framework itself for some basic function
-module.exports = function(e, a) {
 
+var assert = require('assert')
+  , log = require('../log');
+
+module.exports = function(e, a) {
+  
+  // UNCOMMENT TO RUN
+  return;
+
+  // check module precondition
+  assert(e, 'Test environment variable not supplied to test module.');
+  assert(a, 'Test asserter supplied to test module.');
+
+  
   e.testEval.scope =
     { 'x': 1
     , 'assert': a };
@@ -38,7 +50,16 @@ module.exports = function(e, a) {
     a.error('AssertionError', function() { a.not(true); });
   });
 
+  // _______________________________________________________
+  e.log('async');
+
+  e.testAsync('testAsync should works', function(callback) {
+    process.nextTick(callback);
+  });
+  e.testAsync('Timeout expected!', function(callback) {
+    setTimeout(callback, 3000);
+  });
   
 };
 
-module.exports.ignored = true;
+// module.exports.ignored = true;

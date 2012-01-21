@@ -2,11 +2,13 @@
 // model.js - Versez model layer entry point
 (function(undefined) {
 
-  var redis = require('redis')
-    , jam = require('jam')
+  var jam = require('jam')
     , _ = require('underscore')
-    , cfg = require('./config')
-    , redisClient = redis.createClient(cfg.redis.port, cfg.redis.host);
+    , config = require('./config');
+
+  // initialize redis client
+  var r = require('redis').createClient(config.redis.port, config.redis.host);
+  r.select(config.redis.db);
 
   var m = { }
     , ID_NEW = -1;
@@ -63,9 +65,13 @@
 
   // repository functions
   var h = // model helpers
-    { 'isOk': function(result) { return result == '+OK'; }
-    , 'asObj': function(json) { return JSON.parse(json); }
-    , 'asJson': function(obj) { return JSON.stringify(obj); } };
+    { 'isOk': function(result) { this(result); }
+    , 'asObj': function(json) { this(JSON.parse(json)); }
+    , 'asJson': function(obj) { this(JSON.stringify(obj)); } };
+
+  m.switchToTestDb = function() {
+    return jam(function() { r.select(config.redis.testDb, this); });
+  };
 
   m.create = function(type, values) { 
     return safeExtend(new m[type](), values);
@@ -73,16 +79,16 @@
   
   m.load = function(type, id) {
     var key = 'v:' + type + ':' + id;
-    return jam.call(redis.get, key)(h.asJson);
+    return jam.call(r.get, key)(h.asJson);
   };
 
   m.save = function(obj) {
-    var j = jam.id; 
+    var j = null;
 
     if (obj._id != ID_NEW) {
-      j = j.return(obj);
+      j = jam.return(obj);
     } else {
-      j = j.call(redis.incr, 'v:' + obj._type + ':id')
+      j = jam(function() { r.incr('v:' + obj._type + ':id', this); })
         (function(newId) {
           obj._id = newId;
           this(obj);
@@ -90,8 +96,15 @@
     }
 
     return j(function(obj) { 
-      redis.set('v:' + obj._type + ':' + obj._id, obj, this);
-    })(h.isOk);
+      r.set('v:' + obj._type + ':' + obj._id, obj, this);
+    });
+  };
+
+  // relationship functions
+  m.User.prototype.getVerses = function() {
+  };
+
+  m.Verse.prototype.getAuthor = function() {
   };
 
   // export the `m` object

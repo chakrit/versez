@@ -4,8 +4,10 @@
   var config =
     { 'version': '0.0.1'
     , 'redis':
-      { 'host': '127.0.0.1'
-      , 'port': 6379 }
+      { 'host': '0.0.0.0'
+      , 'port': 6379
+      , 'db': 0
+      , 'testDb': 1 }
     , 'server':
       { 'port': process.env.PORT || 1337 
       , 'host': 'localhost' } };

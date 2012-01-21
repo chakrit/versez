@@ -2,6 +2,9 @@
 // sample.js - Sample test file (for study only)
 module.exports = function(e, a) {
 
+  // UNCOMMENT TO RUN
+  return;
+
   e.test('Should pass.', function() { });
   e.test('Should fail.', function() { e.fail('no reason.'); });
 
