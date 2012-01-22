@@ -5,8 +5,8 @@ var assert = require('assert')
   , log = require('../log');
 
 module.exports = function(e, a) {
-  
-  // UNCOMMENT TO RUN
+
+  // uncomment to run
   return;
 
   // check module precondition

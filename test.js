@@ -3,9 +3,9 @@
 (function() {
 
   var _ = require('underscore')
+    , fibers = require('fibers')
     , assert = require('assert')
     , jam = require('jam')
-    , Future = require('fibers/Future')
     , log = require('./log')
     , esc = require('./esc');
 
