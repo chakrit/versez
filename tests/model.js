@@ -47,4 +47,5 @@ module.exports = function(e, a) {
   e.testEval("m.create('Verse')._type === 'Verse'");
   e.testEval("m.create('User', { 'username': 'versez' }).username === 'versez'");
   e.testEval("m.create('User', { '_id': 'private!'})._id !== 'private!'");
+
 };

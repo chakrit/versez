@@ -2,16 +2,16 @@
 // model.js - Versez model layer entry point
 (function(undefined) {
 
-  var jam = require('jam')
-    , _ = require('underscore')
+  var _ = require('underscore')
     , config = require('./config');
+
+  var m = { }
+    , ID_NEW = -1
+    , NS = 'v:';
 
   // initialize redis client
   var r = require('redis').createClient(config.redis.port, config.redis.host);
   r.select(config.redis.db);
-
-  var m = { }
-    , ID_NEW = -1;
 
   // model utils
   var isPrivate = function(name) { return !!name.match(/^_.*$/); };
@@ -25,27 +25,40 @@
     })(key, src[key]);
 
     return dest;
-  }
+  };
 
   // base model definition template
-  m.ModelBase = function() { };
-  m.ModelBase.prototype =
-    { '_id': ID_NEW
-    , '_type': "ModelBase" };
-
-  m.ModelBase.prototype.toJson = function() {
-    return JSON.stringify(safeExtend({ }, this));
-  };
+  var defineModel = function(name, defaults) {
+    var Model = function() { };
+    Model.prototype =
+      { '_id': ID_NEW
+      , '_type': name
+      , 'toSafe': function() { return safeExtend({ }, this); }
+      , 'toJson': function() { return JSON.stringify(this.toSafe()); } };
     
-  function defineModel(name, defaults) {
-    var newModel = function() { };
-    newModel.prototype = _.extend({ },
-      m.ModelBase.prototype,
-      defaults,
-      { _type: name });
+    Model.load = function(id, callback) {
+      redis.get(NS + this._type + ':' + id, function(e, json) {
+        callback(null, _.extend(new Model(), JSON.parse(json)));
+      });
+    };
 
-    return newModel;
+    Model.prototype.save = function(callback) {
+      var me = this;
+
+      if (this._id === ID_NEW) {
+        redis.set(NS + this._type + ':id', function(e, newId) {
+          me._id = newId;
+          me.save(callback);
+        });
+
+      } else {
+        redis.set(NS + this._type + ':' + this._id, callback);
+      }
+    };
+
+    return Model;
   }
+
 
   // model definitions
   m.User = defineModel('User',
@@ -61,7 +74,6 @@
     , 'authorId': -1
     , 'likes': 0
     , 'parentId': -1 });
-  
 
   // repository functions
   var h = // model helpers
@@ -69,6 +81,7 @@
     , 'asObj': function(json) { this(JSON.parse(json)); }
     , 'asJson': function(obj) { this(JSON.stringify(obj)); } };
 
+  // model layer functions
   m.switchToTestDb = function() {
     return jam(function() { r.select(config.redis.testDb, this); });
   };
@@ -77,36 +90,6 @@
     return safeExtend(new m[type](), values);
   };
   
-  m.load = function(type, id) {
-    var key = 'v:' + type + ':' + id;
-    return jam.call(r.get, key)(h.asJson);
-  };
-
-  m.save = function(obj) {
-    var j = null;
-
-    if (obj._id != ID_NEW) {
-      j = jam.return(obj);
-    } else {
-      j = jam(function() { r.incr('v:' + obj._type + ':id', this); })
-        (function(newId) {
-          obj._id = newId;
-          this(obj);
-        });
-    }
-
-    return j(function(obj) { 
-      r.set('v:' + obj._type + ':' + obj._id, obj, this);
-    });
-  };
-
-  // relationship functions
-  m.User.prototype.getVerses = function() {
-  };
-
-  m.Verse.prototype.getAuthor = function() {
-  };
-
   // export the `m` object
   module.exports = m;
 
