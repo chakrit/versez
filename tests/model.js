@@ -1,5 +1,5 @@
 
-// model_basic.js - Basic model tests
+// tests/model.js - Basic model tests
 var m = require('../model');
 
 module.exports = function(e, a) {
@@ -8,7 +8,7 @@ module.exports = function(e, a) {
   // _______________________________________________________
   e.log('ModelBase');
 
-  e.test('ModelBase.toJson works', function() {
+  e.test('User.toJson works', function() {
     var obj = new m.ModelBase();
     obj.a = 1;
     obj.b = 2;
@@ -47,4 +47,5 @@ module.exports = function(e, a) {
   e.testEval("m.create('Verse')._type === 'Verse'");
   e.testEval("m.create('User', { 'username': 'versez' }).username === 'versez'");
   e.testEval("m.create('User', { '_id': 'private!'})._id !== 'private!'");
+
 };
