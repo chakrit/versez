@@ -1,9 +1,13 @@
 
-default: server
+default: web
 
-server:
+install_tools:
+	npm install -g express
+	npm install -g vows
+web:
 	node app.js
+spec: test
 test:
-	node test.js
-test_ci:
-	node test_ci.js
+	vows tests/*
+ci:
+	vows -w tests/*
