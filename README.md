@@ -1,8 +1,9 @@
-Phat - view
-Chakrit - model/redis
-Tor - controller
+Phat - view  
+Chakrit - model/redis  
+Tor - controller  
 
-`make` or `node app.js` to start local dev server.
+`make` or `node app.js` to start local dev server.  
+`make test` or `vows tests/*` to run tests.
 
 # TODO
 
@@ -12,11 +13,9 @@ Tor - controller
 
 # Test HOW-TO
 
-* `make test` or `node test.js` to run test 1 time.
-* `make ci` or `node test_ci.js` to spin a non-stop test loop.
-* `touch ./tests/file.js` - Add a new test file (and restart the test loop)
-
-Look in `sample.js` for sample code.
+* `make test` or `vows tests/*` to run all the tests.
+* `make spec` or `vows tests/* --spec` to gets detailed report.
+* `vows tests/model.js --spec` to run only the `model.js` tests with detailed report.
 
 # Node HOW-TO
 
@@ -45,6 +44,9 @@ so just do:
 3. `cd tools/redis` - We're going to make redis
 4. `make` - To start compiling redis.
 5. `src/redis-server` - You should be greeted with a redis build.
+
+Now to test it out:
+
 6. Open another terminal screen (leave redis running).
 7. `printf "PING\r\nQUIT\r\n" | nc localhost 6379`
    Tests local redis connectivity.
