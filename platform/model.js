@@ -11,7 +11,7 @@
     , NS = 'v';
 
   // initialize redis client
-  var redis = require('redis').createClient(config.redis.port, config.redis.host);
+  var redis = require('redis-url').connect(config.redis.url);
   redis.select(config.redis.db);
 
   // types placeholder (no real use, just for type identification)

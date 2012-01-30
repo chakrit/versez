@@ -4,12 +4,8 @@ require('../platform/test')(module)(function(v, a, config) {
 
   var _ = require('underscore');
   
-  // only worries about redis stuff
-  config = config.redis;
-
   // redis helpers
-  var redis = function() { return require('redis'); }
-    , connect = function() { return redis().createClient(config.port, config.host); };
+  var connect = function() { return require('redis-url').connect(config.redis.url); };
 
   var cmd = function() {
     var args = _.toArray(arguments)
