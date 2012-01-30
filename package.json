@@ -21,7 +21,6 @@
     "redis": ">= 0.0.1",
     "redis-url": ">= 0.0.1",
     "jam": ">= 0.0.1",
-    "fibers": ">= 0.0.1",
     "vows": ">= 0.0.1"
   },
   "devDependencies": {}
