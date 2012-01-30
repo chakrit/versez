@@ -1,8 +1,8 @@
 var express = require('express')
   , stylus = require('stylus')
+  , log = require('./platform/log')
+  , esc = require('./platform/esc')
   , v = require('./versez')
-  , log = require('./log')
-  , esc = require('./esc')
   , app = express.createServer();
 
 log(esc.cls + esc.cyan +
