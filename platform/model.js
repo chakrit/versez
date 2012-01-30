@@ -1,18 +1,18 @@
 
-// model.js - Versez model layer entry point
+// platform/model.js - Versez platform layer for defining models
 (function(undefined) {
 
   var _ = require('underscore')
-    , config = require('./config')
+    , config = require('../config')
     , log = require('./log');
 
   var $E = module.exports = { }
-    , ID_NEW = -1
-    , NS = 'v:';
+    , ID_NEW = $E['ID_NEW'] = -1
+    , NS = 'v';
 
   // initialize redis client
-  var r = require('redis').createClient(config.redis.port, config.redis.host);
-  r.select(config.redis.db);
+  var redis = require('redis').createClient(config.redis.port, config.redis.host);
+  redis.select(config.redis.db);
 
   // types placeholder (no real use, just for type identification)
   var ModelBase = function() { }
@@ -83,7 +83,7 @@
   // __________________________________________________________________
   // general model layer functions
   $E.useTestDb = function() { 
-    return r.select(config.redis.testDb, this);
+    return redis.select(config.redis.testDb, this);
   };
 
   // __________________________________________________________________
@@ -92,6 +92,10 @@
 
     // ctors
     var model = function(values) {
+      // check if we have an instance
+      if (!(this instanceof model))
+	return new model(values);
+
       // run all registered initializers
       cleanExtend(this, fields, values); // ensure hasOwnProperty()
 
@@ -103,11 +107,13 @@
     model._type = name;
 
     // prototype
-    model.prototoype = _.extend(new ModelBase(), cleanExtend({ }, fields),
+    model.prototype = _.extend(new ModelBase(), cleanExtend({ }, fields),
       { '_id': ID_NEW
       , '_type': name });
 
     // class functions
+    model.create = function(values) { return new model(values); };
+
     model.parse = function(json) {
       return cleanExtend(new model(), JSON.parse(json));
     };
@@ -134,7 +140,7 @@
 	}));
       }
 
-      redis.set(stitch(name, me._id), callback);
+      redis.set(stitch(name, me._id), me.toJson(), callback);
     };
 
     model.prototype.saveIfNew = function(callback) {

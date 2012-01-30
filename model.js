@@ -1,9 +1,9 @@
 
-// model.defines.js - Define the actual model classes
+// model.js - Versez model definitions
 (function() {
 
   var $E = module.exports = { }
-    , define = require('./model');
+    , define = require('./platform/model');
 
   // model definitions
   $E.User = define.model('User',
