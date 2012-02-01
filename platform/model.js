@@ -48,7 +48,7 @@
     return dest;
   };
 
-  // redis keys sticher
+  // redis keys stitcher
   var stitch = function() {
     var len = arguments.length
       , str = NS;
@@ -96,10 +96,10 @@
       if (!(this instanceof model))
 	return new model(values);
 
-      // run all registered initializers
       cleanExtend(this, fields, values); // ensure hasOwnProperty()
 
-      for (var i = 0; i < model._initializers.count; i++)
+      // run all registered initializers
+      for (var i = 0; i < model._initializers.length; i++)
         model._initializers[i](this);
     };
 
@@ -114,15 +114,20 @@
     // class functions
     model.create = function(values) { return new model(values); };
 
-    model.parse = function(json) {
-      return cleanExtend(new model(), JSON.parse(json));
+    model.parse = function(json, id) {
+      var obj = cleanExtend(new model(), JSON.parse(json));
+      if (id !== undefined && (id = parseInt(id, 10)))
+	obj._id = id;
+
+      return obj
     };
 
     model.load = function(id, callback) {
       var key = stitch(name, id);
 
       redis.get(key, checkedWrap(function(json) {
-	callback(model.parse(json));
+	try { callback(null, model.parse(json, id)); }
+	catch(e) { callback(e, null); }
       }));
     };
 
@@ -157,24 +162,25 @@
   $E.oneToOne = function(model, toModel, field) {
     model._initializers.push(function(obj) {
       var relation = new RelationBase()
-        , key = stitch(obj._type, obj._id, name)
+        , key = stitch(obj._type, obj._id, field)
         , cache = null;
 
       // get target object (resolving ids and getting the real object)
       relation.get = function(callback) {
 	if (cache) return _.defer(callback, null, cache);
 
-	redis.get(key, checkedWrap(function(key_) {
-	  redis.get(key_, checkedWrap(function(json) {
-	    callback(null, cache = toModel.parse(json));
+	redis.get(key, checkedWrap(function(id) {
+	  var destKey = stitch(toModel._type, id);
+
+	  redis.get(destKey, checkedWrap(function(json) {
+	    callback(null, cache = toModel.parse(json, id));
 	  }));
 	}));
       };
 
       // set target object id
       relation.set = objOrIdWrap(function(id, callback) {
-	var destKey = stitch(toModel._type, id);
-	redis.set(key, destKey, callback);
+	redis.set(key, id, callback);
       });
       
       return obj[field] = relation;
@@ -184,10 +190,8 @@
   $E.oneToMany = function(model, toModel, field) {
     model._initializers.push(function(obj) {
       var relation = new RelationBase()
-        , key = stitch(obj._type, obj._id, name)
+        , key = stitch(obj._type, obj._id, field)
         , cache = null;
-
-      var idToKey = _.bind(stitch, null, toModel._type);
 
       // fetch all instances in the relation
       // WARN: Probably very expensive for large collections
@@ -195,26 +199,31 @@
 	if (cache) return _.defer(callback, null, cache);
 
 	// get list of IDs, then get all the JSONs and parse them into live objects
-	redis.smembers(key, checkedWrap(function(keys) {
+	redis.smembers(key, checkedWrap(function(ids) {
+	  var keys = _.map(ids, _.bind(stitch, null, toModel._type));
+
 	  redis.mget(keys, checkedWrap(function(jsons) {
-	    callback(null, cache = _.map(jsons, toModel.parse));
+	    callback(null, cache = _.chain(jsons)
+	      .zip(ids)
+	      .map(_.bind(toModel.parse.apply, null, toModel))
+	      .value());
 	  }));
 	}));
       };
 
       // push one instance to the list
       relation.add = objOrIdWrap(function(id, callback) {
-	redis.sadd(key, idToKey(id), callback);
+	redis.sadd(key, id, callback);
       });
 
       // checks if given instances is in the relation
       relation.contains = objOrIdWrap(function(id, callback) {
-	redis.sismember(key, idToKey(id), callback);
+	redis.sismember(key, id, callback);
       });
 
       // removes the given instance from the relation
       relation.remove = objOrIdWrap(function(id, callback) {
-	redis.srem(key, idToKey(id), callback);
+	redis.srem(key, id, callback);
       });
     
       return obj[field] = relation;
@@ -222,9 +231,9 @@
   };
 
   // shortcuts for defining reverse reltaions
-  $E.relation = function(model, parentField, toModel, childrenField) {
-    $E.oneToMany(model, toModel, childrenField);
-    $E.oneToOne(toModel, model, parentField);
+  $E.relation = function(parentModel, parentField, childModel, childField) {
+    $E.oneToMany(parentModel, childModel, childField);
+    $E.oneToOne(childModel, parentModel, parentField);
   };
 
 })();

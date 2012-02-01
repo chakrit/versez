@@ -16,9 +16,7 @@
   $E.Verse = define.model('Verse',
     { 'text': null
     , 'createDate': null
-    , 'authorId': -1
-    , 'likes': 0
-    , 'parentId': -1 });
+    , 'likes': 0 });
 
   define.relation($E.User, 'author', $E.Verse, 'verses');
   define.relation($E.Verse, 'parent', $E.Verse, 'children');

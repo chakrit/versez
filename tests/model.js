@@ -7,10 +7,15 @@ require('../platform/test')(module)(function(v, a, config) {
     , model = require('../model')
     , batch = { };
 
-  // describe creation tests
+  // util for getting previous topics (which isn't quite available when doing async)
+  function prev(this_) { return this_.context.topics[1]; }
+  function twoPrev(this_) { return this_.context.topics[2]; }
+
+  // model test macro
   function describeModel(modelName, values) {
     var type = model[modelName];
 
+    // check that supplied model sample values are preserved
     function assertValues(target) {
       for (var prop in values) {
 	if (!values.hasOwnProperty(prop)) continue;
@@ -20,6 +25,7 @@ require('../platform/test')(module)(function(v, a, config) {
     }
 
     return(
+      // ctor descriptions
       { 'is created properly':
 	{ topic: function() { return type; }
 	, 'when invoked as function': function(type) { a.instanceOf(type(), type); }
@@ -36,6 +42,7 @@ require('../platform/test')(module)(function(v, a, config) {
 	  , 'a proper js number': function(id) { a.isNumber(id); }  
 	  , 'equals to ID_NEW': function(id) { a.strictEqual(id, ID_NEW); } } }
       
+      // save/load for single instance
       , 'instance':
         { topic: new type()
 	, 'when saved successfully':
@@ -44,15 +51,89 @@ require('../platform/test')(module)(function(v, a, config) {
 	  , 'calls back with OK message': function(e, result) { a.strictEqual(result, 'OK'); }
 
 	  , 'is assigned':
-	    { topic: function(e, result) { return this.context.topics[1]._id; }
+	    { topic: function(e, result) { return prev(this)._id; }
 	    , 'a numeric id': function(id) { a.isNumber(id); }
-	    , 'an id that is *not* ID_NEW': function(id) { a.notStrictEqual(id, ID_NEW); } } } } });
+	    , 'an id that is *not* ID_NEW': function(id) { a.notStrictEqual(id, ID_NEW); } } } }
+
+      , 'instance with sample values':
+        { topic: new type(values)
+	, 'after roundtrip to redis':
+	  { topic: function(obj) {
+              var cb = _.bind(this.callback, this);
+	      obj.save(function(e, result) { type.load(obj._id, cb); });
+	    }
+
+	  , 'should retains the values': function(obj) { assertValues(obj); }
+	  , 'should retains the id': function(obj) { a.strictEqual(obj._id, prev(this)._id); } } } });
   }
 
+  // relation test macro
+  function describeRelation(parentType, parentProp, childType, childProp) {
+    
+    // helper for creating object pair in the relation
+    var pair = function() {
+      var p = { 'parent': new parentType(), 'child': new childType() };
+
+      p['parentChild'] = p.parent[childProp];
+      p['childParent'] = p.child[parentProp];
+
+      return p;
+    };
+
+    return (
+      { 'instances':
+	{ topic: pair
+	, 'have parent property in child': function(p) { a.include(p.child, parentProp); }
+	, 'have child property in parent': function(p) { a.include(p.parent, childProp); } }
+	// TODO: Add self._id check tests
+      
+      , 'when parent object':
+        { topic: pair
+	, 'is set on child':
+          { topic: function(p) { p.childParent.set(p.parent, this.callback); }
+	  , 'calls back without error': function(e, result) { a.isNull(e); }
+	  , 'calls back with OK': function(e, result) { a.strictEqual(result, 'OK'); }
+
+	  , 'getting back the instance':
+	    { topic: function(e, result) { prev(this).childParent.get(this.callback); }
+	    , 'calls back without error': function(e, obj) { a.isNull(e); }
+	    , 'calls back with non-null instance': function(e, obj) { a.isNotNull(obj); }
+	    , 'preserve instanceof checks': function(e, obj) { a.instanceOf(obj, parentType); }
+	    , 'have equal properties on toClean()': function(e, obj) { a.deepEqual(obj.toClean(), twoPrev(this).parent.toClean()); }
+	    , 'retains the same type': function(e, obj) { a.strictEqual(parentType._type, obj._type); }
+	    , 'retains the same ID': function(e, obj) { a.strictEqual(obj._id, twoPrev(this).parent._id); } } } }
+
+      , 'when child property':
+        { topic: pair
+	, 'is not yet added to parent':
+	  { topic: pair
+	  , 'calling .contains(child)':
+	    { topic: function(p) { p.parentChild.contains(p.child, this.callback); }
+	    , 'calls back without error': function(e, result) { a.isNull(e); }
+	    , 'calls back with result ~= false': function(e, result) { a.equal(result, false); } } }
+
+	, 'is added to parent':
+	  { topic: function(p) { p.parentChild.add(p.child, this.callback); }
+	  , 'calls back without error': function(e, result) { a.isNull(e); }
+	  , 'calls back with list length == 1': function(e, result) { a.strictEqual(result, 1); }
+	  
+	  , 'calling .contains(child)':
+	    { topic: function(e, result) { prev(this).parentChild.contains(prev(this).child, this.callback); }
+	    , 'calls back without error': function(e, result) { a.isNull(e); }
+	    , 'calls back with result ~= true': function(e, result) { a.equal(result, true); } }
+	  , 'and then removed':
+	    { topic: function(e, result) { prev(this).parentChild.remove(prev(this).child, this.callback); }
+	    , 'calls back without error': function(e, result) { a.isNull(e); }
+	    , 'calls back with list length == 0': function(e, result) { a.strictEqual(result, 0); } } } } });
+  }
+
+  // run the macro for all the types and relations
   v.describe('Models')
     .addBatch({ 'A User': describeModel('User', { 'username': 'versez' }) })
     .addBatch({ 'A Verse': describeModel('Verse', { 'text': 'lorem ipsum' }) });
 
-  // TODO: Save/load tests, relation tests
+  v.describe('Relations').addBatch(
+    { 'User.verses & Verse.author': describeRelation(model.User, 'author', model.Verse, 'verses')
+    , 'Verse.parent & Verse.children': describeRelation(model.Verse, 'parent', model.Verse, 'children') });
 
 });
