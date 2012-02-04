@@ -1,6 +1,6 @@
 
 // redis.js - Test redis connectivity
-require('../platform/test')(module)(function(v, a, config) {
+require('../platform/test')(module, function(v, a, config) {
 
   var _ = require('underscore');
   

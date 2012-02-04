@@ -184,7 +184,7 @@
 	if (cache) return _.defer(callback, null, cache);
 
 	redis.get(key(), checkedWrap(function(id) {
-	  if (!id) { console.log(callback.toString()); return callback(null, cache = null); };
+	  if (!id) return callback(null, cache = null);
 
 	  var destKey = stitch(toModel._type, id);
 

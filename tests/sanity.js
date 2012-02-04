@@ -1,6 +1,6 @@
 
 // sanity.js - Sanity check test.
-require('../platform/test')(module)(function(v, a, config) {
+require('../platform/test')(module, function(v, a, config) {
 
   v.describe('Sane test platform').addBatch(
     { 'calculating 1 + 1':
