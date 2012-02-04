@@ -8,3 +8,5 @@ spec:
 	vows tests/* --spec
 redis:
 	./tools/redis/src/redis-server
+redis-cli:
+	./tools/redis/src/redis-cli
