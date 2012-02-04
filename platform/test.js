@@ -12,7 +12,7 @@
 //
 module.exports = (function(undefined) {
   return function(testModule) {
-    return function(moduleCallback) {
+    return function(moduleCallback) { // TODO: Curry this one? We don't need the extra nesting here
       
       var _ = require('underscore')
         , vows = require('vows')
@@ -28,7 +28,7 @@ module.exports = (function(undefined) {
       // run the test descriptors
       moduleCallback(vows, assert, config);
 
-      // automatically export all vows describes
+      // automatically export all recorded vows describes
       for (var title in descriptions) {
 	descriptions[title].export(testModule);
       }

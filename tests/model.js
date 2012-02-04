@@ -84,11 +84,23 @@ require('../platform/test')(module)(function(v, a, config) {
       { 'instances':
 	{ topic: pair
 	, 'have parent property in child': function(p) { a.include(p.child, parentProp); }
-	, 'have child property in parent': function(p) { a.include(p.parent, childProp); } }
-	// TODO: Add self._id check tests
+	, 'have child property in parent': function(p) { a.include(p.parent, childProp); }
+
+	, 'when parent.child relation is accessed':
+          { topic: function(p) { p.parentChild.all(this.callback); }
+	  , 'parent is automatically saved so it has an ID': function(e, result) { a.notStrictEqual(prev(this).parent._id, ID_NEW); } }
+
+	, 'when child.parent relation is accessed':
+          { topic: function(p) { p.childParent.get(this.callback); }
+	  , 'child is automatically saved so it has an ID': function(e, result) { a.notStrictEqual(prev(this).child._id, ID_NEW); } } }
       
       , 'when parent object':
         { topic: pair
+	, 'is not yet set on child':
+          { topic: function(p) { p.childParent.get(this.callback); }
+	  , 'calls back without error': function(e, result) { a.isNull(e); }
+	  , 'calls back with null': function(e, result) { a.isNull(result); } }
+
 	, 'is set on child':
           { topic: function(p) { p.childParent.set(p.parent, this.callback); }
 	  , 'calls back without error': function(e, result) { a.isNull(e); }
@@ -115,16 +127,22 @@ require('../platform/test')(module)(function(v, a, config) {
 	, 'is added to parent':
 	  { topic: function(p) { p.parentChild.add(p.child, this.callback); }
 	  , 'calls back without error': function(e, result) { a.isNull(e); }
-	  , 'calls back with list length == 1': function(e, result) { a.strictEqual(result, 1); }
+	  , 'calls back with result ~= true': function(e, result) { a.equal(result, true); }
+
+	  , 'adding the same object again':
+	    { topic: function(e, result) { prev(this).parentChild.add(prev(this).child, this.callback); }
+	    , 'calls back without error': function(e, result) { a.isNull(e); }
+	    , 'calls back with result ~= false': function(e, result) { a.equal(result, false); } }
 	  
 	  , 'calling .contains(child)':
 	    { topic: function(e, result) { prev(this).parentChild.contains(prev(this).child, this.callback); }
 	    , 'calls back without error': function(e, result) { a.isNull(e); }
 	    , 'calls back with result ~= true': function(e, result) { a.equal(result, true); } }
+
 	  , 'and then removed':
 	    { topic: function(e, result) { prev(this).parentChild.remove(prev(this).child, this.callback); }
 	    , 'calls back without error': function(e, result) { a.isNull(e); }
-	    , 'calls back with list length == 0': function(e, result) { a.strictEqual(result, 0); } } } } });
+	    , 'calls back with result ~= true': function(e, result) { a.equal(result, true); } } } } });
   }
 
   // run the macro for all the types and relations

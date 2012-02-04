@@ -2,6 +2,10 @@
 // platform/model.js - Versez platform layer for defining models
 (function(undefined) {
 
+  // TODO: Probably better to just throw away the concept of having n
+  //   unsaved instance floating around, (i.e. all ModelBase instance
+  //   are born saved with a proper ID). Should simplify lots of code.
+
   var _ = require('underscore')
     , config = require('../config')
     , log = require('./log');
@@ -74,9 +78,19 @@
   // and then call the callback with the (old or new) id
   var objOrIdWrap = function(inner) {
     return function(objOrId, callback) {
-      return (typeof objOrId !== 'string') ?
+      return (typeof objOrId === 'object') ?
 	objOrId.saveIfNew(function() { inner(objOrId._id, callback); }) :
 	inner(objOrId, callback); // objOrId is id
+    };
+  };
+
+  // ensure we have a saved instance (aggresive save)
+  var savedObjWrap = function(obj, inner) {
+    return function() {
+      var args = arguments
+	, me = this;
+
+      obj.saveIfNew(function() { inner.apply(me, args); });
     };
   };
 
@@ -162,14 +176,16 @@
   $E.oneToOne = function(model, toModel, field) {
     model._initializers.push(function(obj) {
       var relation = new RelationBase()
-        , key = stitch(obj._type, obj._id, field)
+        , key = function() { return stitch(obj._type, obj._id, field); }
         , cache = null;
 
       // get target object (resolving ids and getting the real object)
       relation.get = function(callback) {
 	if (cache) return _.defer(callback, null, cache);
 
-	redis.get(key, checkedWrap(function(id) {
+	redis.get(key(), checkedWrap(function(id) {
+	  if (!id) { console.log(callback.toString()); return callback(null, cache = null); };
+
 	  var destKey = stitch(toModel._type, id);
 
 	  redis.get(destKey, checkedWrap(function(json) {
@@ -179,10 +195,16 @@
       };
 
       // set target object id
+      // TODO: Make .set respect the cache? (possible inconsistency with .get() result)
       relation.set = objOrIdWrap(function(id, callback) {
-	redis.set(key, id, callback);
+	redis.set(key(), id, callback);
       });
       
+      // ensure we're always dealing with saved objects when relations are accessed
+      _(['set', 'get']).each(function(func) {
+	relation[func] = savedObjWrap(obj, relation[func]);
+      });
+
       return obj[field] = relation;
     });
   };
@@ -190,7 +212,7 @@
   $E.oneToMany = function(model, toModel, field) {
     model._initializers.push(function(obj) {
       var relation = new RelationBase()
-        , key = stitch(obj._type, obj._id, field)
+        , key = function() { return stitch(obj._type, obj._id, field); }
         , cache = null;
 
       // fetch all instances in the relation
@@ -199,33 +221,38 @@
 	if (cache) return _.defer(callback, null, cache);
 
 	// get list of IDs, then get all the JSONs and parse them into live objects
-	redis.smembers(key, checkedWrap(function(ids) {
+	redis.smembers(key(), checkedWrap(function(ids) {
 	  var keys = _.map(ids, _.bind(stitch, null, toModel._type));
+
+	  if (ids.length === 0)
+	    return callback(null, cache = []);
 
 	  redis.mget(keys, checkedWrap(function(jsons) {
 	    callback(null, cache = _.chain(jsons)
 	      .zip(ids)
-	      .map(_.bind(toModel.parse.apply, null, toModel))
+	      .map(_.bind(toModel.parse.apply, toModel.parse, toModel))
 	      .value());
 	  }));
 	}));
       };
 
-      // push one instance to the list
-      relation.add = objOrIdWrap(function(id, callback) {
-	redis.sadd(key, id, callback);
+      // basic set functions (translate to redis set commands)
+      // TODO: Make these functions respect the cache as well?
+      //   otherwise we might have inconsistencies issue with .all()
+      relation.add = function(id, callback) { redis.sadd(key(), id, callback); };
+      relation.contains = function(id, callback) { redis.sismember(key(), id, callback); };
+      relation.remove = function(id, callback) { redis.srem(key(), id, callback); };
+
+      // ensure that these functions can be called with just an id
+      _(['add', 'contains', 'remove']).each(function(func) {
+	relation[func] = objOrIdWrap(relation[func]);
       });
 
-      // checks if given instances is in the relation
-      relation.contains = objOrIdWrap(function(id, callback) {
-	redis.sismember(key, id, callback);
+      // ensure these functions are called after related objects are saved
+      _(['all', 'add', 'contains', 'remove']).each(function(func) {
+	relation[func] = savedObjWrap(obj, relation[func]);
       });
 
-      // removes the given instance from the relation
-      relation.remove = objOrIdWrap(function(id, callback) {
-	redis.srem(key, id, callback);
-      });
-    
       return obj[field] = relation;
     });
   };
