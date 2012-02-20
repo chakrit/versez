@@ -2,7 +2,7 @@
 // test.js - Vows-augmented test layer
 //
 // USAGE: Use this syntax in your test file to properly export/run the test
-// 
+//
 //   require('../platform/test')(module, function(v, a, config) {
 //
 //     // v == require('vows') and

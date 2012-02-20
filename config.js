@@ -8,7 +8,7 @@
       , 'db': 0
       , 'testDb': 1 }
     , 'server':
-      { 'port': process.env.PORT || 1337 
+      { 'port': process.env.PORT || 1337
       , 'host': 'localhost' } };
 
   // TODO: Add environment specific setups here?

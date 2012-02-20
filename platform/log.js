@@ -6,22 +6,12 @@ module.exports = (function(_, e, undefined) {
 
   var s = '%s'; // param shortcut
   var formats =
-    // generic stuff
     { 'h1': [e.cyan, e.bold, ,'______________________________\r\n', s]
     , 'h2': [e.white, e.bold, s]
     , 'subtitle': [e.silver, s]
     , 'warn': [e.yellow, s]
     , 'info': [e.silver, s]
-    , 'error': [e.red, e.bold, s]
-    // tests stuff
-    , 'testRunning': [e.silver,      'running  ', e.silver, s]
-    , 'testFail':    [e.red, e.bold, 'FAILED   ', s, e.silver, '\r\n         ', s]
-    , 'testPass':    [e.green,       'passed   ', e.silver, s]
-    , 'testSkip':    [e.yellow,      'skipped  ', e.silver, s]
-    , 'runReport':   [e.silver,      ' ran      %d']
-    , 'passReport':  [e.green,       ' passed   %d']
-    , 'failReport':  [e.red, e.bold, ' failed   %d']
-    , 'skipReport':  [e.yellow,      ' skipped  %d'] };
+    , 'error': [e.red, e.bold, s] };
 
   // turn formats into actual log functions
   for (var key in formats) formats[key] = (function(key, value) {

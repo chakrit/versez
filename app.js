@@ -12,7 +12,7 @@ log(esc.cls + esc.cyan +
   "  | | | |  __||    / `--. \\  __|  / /  \n" +
   "  \\ \\_/ / |___| |\\ \\/\\__/ / |___./ /___\n" +
   "   \\___/\\____/\\_| \\_\\____/\\____/\\_____/\n");
-  
+
 log('');
 log.h1("VERSEZ - v" + v.config.version);
 log(esc.silver);
@@ -26,14 +26,14 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(app.router);
   app.set('view engine', 'jade');
-  
-  app.use(stylus.middleware({ 
-    src: __dirname + '/public', 
+
+  app.use(stylus.middleware({
+    src: __dirname + '/public',
     dest: __dirname + '/public',
     compile: function(str, path) {
       return stylus(str)
         .set('filename', path)
-              .set('warn', true)
+        .set('warn', true)
         .set('compress', true);
     }
   }));

@@ -36,7 +36,7 @@
   var cleanExtend = function(dest, src) {
     if (arguments[2] !== undefined) { // support multiple src args
       return _.reduce(_.toArray(arguments), function(a, b) {
-	return cleanExtend(a, b); // can't use directly because there's a 3rd arg
+        return cleanExtend(a, b); // can't use directly because there's a 3rd arg
       }, dest);
     }
 
@@ -68,7 +68,7 @@
   var checkedWrap = function(inner) {
     return function(e, result) {
       return e ?
-	log.error('Model error: ' + e.toString() + '\r\n' + e.stack) :
+        log.error('Model error: ' + e.toString() + '\r\n' + e.stack) :
         inner(result);
     };
   };
@@ -79,8 +79,8 @@
   var objOrIdWrap = function(inner) {
     return function(objOrId, callback) {
       return (typeof objOrId === 'object') ?
-	objOrId.saveIfNew(function() { inner(objOrId._id, callback); }) :
-	inner(objOrId, callback); // objOrId is id
+        objOrId.saveIfNew(function() { inner(objOrId._id, callback); }) :
+        inner(objOrId, callback); // objOrId is id
     };
   };
 
@@ -88,7 +88,7 @@
   var savedObjWrap = function(obj, inner) {
     return function() {
       var args = arguments
-	, me = this;
+        , me = this;
 
       obj.saveIfNew(function() { inner.apply(me, args); });
     };
@@ -96,7 +96,7 @@
 
   // __________________________________________________________________
   // general model layer functions
-  $E.useTestDb = function() { 
+  $E.useTestDb = function() {
     return redis.select(config.redis.testDb, this);
   };
 
@@ -108,7 +108,7 @@
     var model = function(values) {
       // check if we have an instance
       if (!(this instanceof model))
-	return new model(values);
+        return new model(values);
 
       cleanExtend(this, fields, values); // ensure hasOwnProperty()
 
@@ -131,7 +131,7 @@
     model.parse = function(json, id) {
       var obj = cleanExtend(new model(), JSON.parse(json));
       if (id !== undefined && (id = parseInt(id, 10)))
-	obj._id = id;
+        obj._id = id;
 
       return obj
     };
@@ -140,23 +140,23 @@
       var key = stitch(name, id);
 
       redis.get(key, checkedWrap(function(json) {
-	try { callback(null, model.parse(json, id)); }
-	catch(e) { callback(e, null); }
+        try { callback(null, model.parse(json, id)); }
+        catch(e) { callback(e, null); }
       }));
     };
 
     // instance functions
     model.prototype.toClean = function() { return cleanExtend({ }, this); };
     model.prototype.toJson = function() { return JSON.stringify(this.toClean()); };
-   
+
     model.prototype.save = function(callback) {
       var me = this;
 
       if (me._id === ID_NEW) {
-	return redis.incr(stitch(name, '_id'), checkedWrap(function(newId) {
-	  me._id = newId;
-	  me.save(callback);
-	}));
+        return redis.incr(stitch(name, '_id'), checkedWrap(function(newId) {
+          me._id = newId;
+          me.save(callback);
+        }));
       }
 
       redis.set(stitch(name, me._id), me.toJson(), callback);
@@ -164,13 +164,13 @@
 
     model.prototype.saveIfNew = function(callback) {
       return (this._id === ID_NEW) ?
-	this.save(callback) :
-	_.defer(callback, null, true);
+        this.save(callback) :
+        _.defer(callback, null, true);
     };
 
     return model;
   };
- 
+
   // __________________________________________________________________
   // relation definer
   $E.oneToOne = function(model, toModel, field) {
@@ -181,28 +181,28 @@
 
       // get target object (resolving ids and getting the real object)
       relation.get = function(callback) {
-	if (cache) return _.defer(callback, null, cache);
+        if (cache) return _.defer(callback, null, cache);
 
-	redis.get(key(), checkedWrap(function(id) {
-	  if (!id) return callback(null, cache = null);
+        redis.get(key(), checkedWrap(function(id) {
+          if (!id) return callback(null, cache = null);
 
-	  var destKey = stitch(toModel._type, id);
+          var destKey = stitch(toModel._type, id);
 
-	  redis.get(destKey, checkedWrap(function(json) {
-	    callback(null, cache = toModel.parse(json, id));
-	  }));
-	}));
+          redis.get(destKey, checkedWrap(function(json) {
+            callback(null, cache = toModel.parse(json, id));
+          }));
+        }));
       };
 
       // set target object id
       // TODO: Make .set respect the cache? (possible inconsistency with .get() result)
       relation.set = objOrIdWrap(function(id, callback) {
-	redis.set(key(), id, callback);
+        redis.set(key(), id, callback);
       });
-      
+
       // ensure we're always dealing with saved objects when relations are accessed
       _(['set', 'get']).each(function(func) {
-	relation[func] = savedObjWrap(obj, relation[func]);
+        relation[func] = savedObjWrap(obj, relation[func]);
       });
 
       return obj[field] = relation;
@@ -218,22 +218,22 @@
       // fetch all instances in the relation
       // WARN: Probably very expensive for large collections
       relation.all = function(callback) {
-	if (cache) return _.defer(callback, null, cache);
+        if (cache) return _.defer(callback, null, cache);
 
-	// get list of IDs, then get all the JSONs and parse them into live objects
-	redis.smembers(key(), checkedWrap(function(ids) {
-	  var keys = _.map(ids, _.bind(stitch, null, toModel._type));
+        // get list of IDs, then get all the JSONs and parse them into live objects
+        redis.smembers(key(), checkedWrap(function(ids) {
+          var keys = _.map(ids, _.bind(stitch, null, toModel._type));
 
-	  if (ids.length === 0)
-	    return callback(null, cache = []);
+          if (ids.length === 0)
+            return callback(null, cache = []);
 
-	  redis.mget(keys, checkedWrap(function(jsons) {
-	    callback(null, cache = _.chain(jsons)
-	      .zip(ids)
-	      .map(_.bind(toModel.parse.apply, toModel.parse, toModel))
-	      .value());
-	  }));
-	}));
+          redis.mget(keys, checkedWrap(function(jsons) {
+            callback(null, cache = _.chain(jsons)
+              .zip(ids)
+              .map(_.bind(toModel.parse.apply, toModel.parse, toModel))
+              .value());
+          }));
+        }));
       };
 
       // basic set functions (translate to redis set commands)
@@ -245,12 +245,12 @@
 
       // ensure that these functions can be called with just an id
       _(['add', 'contains', 'remove']).each(function(func) {
-	relation[func] = objOrIdWrap(relation[func]);
+        relation[func] = objOrIdWrap(relation[func]);
       });
 
       // ensure these functions are called after related objects are saved
       _(['all', 'add', 'contains', 'remove']).each(function(func) {
-	relation[func] = savedObjWrap(obj, relation[func]);
+        relation[func] = savedObjWrap(obj, relation[func]);
       });
 
       return obj[field] = relation;
