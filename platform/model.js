@@ -7,7 +7,7 @@
   //   are born saved with a proper ID). Should simplify lots of code.
 
   var _ = require('underscore')
-    , config = require('../config')
+    , config = require('../config') // TODO: Remove?
     , log = require('./log');
 
   var $E = module.exports = { }

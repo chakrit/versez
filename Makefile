@@ -1,4 +1,3 @@
-
 default: server
 server:
 	node app.js

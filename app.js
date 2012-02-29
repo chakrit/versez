@@ -51,8 +51,8 @@ app.configure('production', function(){
 });
 
 // __________________________________________________________________
-log("Initializing controllers...");
-v.controller.init(app);
+log("Initializing routes...");
+v.routes(app);
 
 log("Starting up...");
 var port = v.config.server.port || process.env.PORT || 80;
