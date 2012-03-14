@@ -3,39 +3,28 @@
 //   This simply maps controller to the express application
 module.exports = function(app) {
 
-  // TODO: Use a routes platform function that provides better
-  //   scoping functionality, e.g. url scope
-  //   should also allow for printing out routes
-  var scope = '/';
-  var get = function(url, action) {
-    console.log('Route: %s%s', scope, url);
-    app.get(scope + url, action);
-  };
+  with (require('./platform/routes')) {
+    with (require('./controller')) {
 
-  with (require('./controller')) {
-    scope = '/';
+      draw(app, function() {
+        get('/', Home.index);
 
-    with (Util) {
-      scope = '/util';
-      get('/echo_this', echoThis);
-      get('/echo_request', echoRequest);
-    }
+        scope('/util', Util, function(util) {
+          get('/echo_this', util.echoThis);
+          get('/echo_request', util.echoRequest);
+        });
 
-    with (Home) {
-      scope = '/';
-      get('', index);
-    }
+        scope('/users', Users, function(u) {
+          get('/:id', u.show);
+          get('/:id/verses', u.verses);
+        });
 
-    with (Users) {
-      scope = '/users';
-      get('/:id', show);
-      get('/:id/verses', verses);
-    }
+        scope('/verses', Verses, function(v) {
+          get('/:id', v.show);
+          get('/:id/children', v.children);
+        });
 
-    with (Verses) {
-      scope = '/verses';
-      get('/:id', show);
-      get('/:id/children', children);
+      });
     }
   }
 
