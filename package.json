@@ -23,7 +23,9 @@
     "jam": ">= 0.0.1",
     "vows": ">= 0.0.1",
     "ender": ">= 0.0.1",
-    "ender-js": ">= 0.0.1"
+    "ender-js": ">= 0.0.1",
+    "less": ">= 0.0.1",
+    "uglify-js": ">= 0.0.1"
   },
   "devDependencies": {}
 }
