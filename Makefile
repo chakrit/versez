@@ -10,5 +10,5 @@ redis:
 redis-cli:
 	./tools/redis/src/redis-cli
 cloc:
-	cloc --exclude-dir=.git,node_modules,tools .
+	cloc --exclude-dir=.git,node_modules,tools,lib .
 
