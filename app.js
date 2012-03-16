@@ -32,6 +32,8 @@ app.configure(function() {
   app.use(express.methodOverride());
   app.use(express.bodyParser());
   app.use(app.router);
+
+  app.set('views', 'app/views');
   app.set('view engine', 'jade');
 
   app.use(stylus.middleware(
@@ -53,6 +55,7 @@ app.configure('development', function() {
 
 app.configure('production', function() {
   var oneYear = 31557600000;
+  app.set('view cache', true);
   app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
   app.use(express.errorHandler());
 });
