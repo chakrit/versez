@@ -4,7 +4,7 @@
 (function() {
 
   var $E = module.exports = { }
-    , platform = require('../platform/controller')
+    , platform = require('../../platform/controller')
     , model = require('./model');
 
   with (platform) { // inject platform stuff into scope
