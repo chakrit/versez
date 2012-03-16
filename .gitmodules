@@ -1,6 +1,8 @@
 [submodule "tools/redis"]
 	path = tools/redis
 	url = git://github.com/antirez/redis.git
+	ignore = dirty
 [submodule "lib/bootstrap"]
 	path = lib/bootstrap
 	url = git://github.com/twitter/bootstrap.git
+	ignore = dirty
