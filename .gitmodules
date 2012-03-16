@@ -1,6 +1,6 @@
 [submodule "tools/redis"]
 	path = tools/redis
-	url = git://github.com/antirez/redis
+	url = git://github.com/antirez/redis.git
 [submodule "lib/bootstrap"]
 	path = lib/bootstrap
 	url = git://github.com/twitter/bootstrap.git
