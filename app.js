@@ -19,9 +19,9 @@ var v =
 var PUBLIC = 'public'
   , VIEWS = 'app/views'
   , STYL_SRC = 'app/styl'
-  , STYL_DEST = PUBLIC + '/css'
+  , STYL_DEST = 'public/css'
   , UGLY_SRC = 'app/clientjs'
-  , UGLY_DEST = PUBLIC + '/js';
+  , UGLY_DEST = 'public/js';
 
 var D = function(folder) {
   console.log([__dirname, folder].join('/'));
