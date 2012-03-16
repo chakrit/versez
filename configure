@@ -19,3 +19,7 @@ popd
 # install npm dependencies
 npm install
 
+# install required global commands
+if [ "$1" == "--global" ]; then
+  npm install -g vows less uglify-js express
+fi
