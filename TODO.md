@@ -13,4 +13,6 @@
 
 # Infrastructures
 * Shared code between client and server (+ ender?)
+* Remove compilable stuff from /public (stylus, jade etc.)
+  Maybe build them from external /app/stylus /app/clientjs folder
 
