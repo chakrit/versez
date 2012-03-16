@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# checkout submodules ...
+git submodule init
+git submodule update
+
+# ... and build them
+pushd .
+cd tools/redis
+make
+popd
+
+pushd .
+cd lib/bootstrap
+make
+make bootstrap
+popd
+
+# install npm dependencies
+npm install
+
