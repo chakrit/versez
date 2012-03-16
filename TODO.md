@@ -1,3 +1,7 @@
+# Underway
+* Fix uglify-js-middleware not working.
+* Add skeletal bootstrap support.
+
 # Tasks
 * Facebook OAuth
 * Twitter OAuth
