@@ -1,9 +1,16 @@
+
+// platform requires
 var express = require('express')
   , stylus = require('stylus')
   , log = require('./platform/log')
   , esc = require('./platform/esc')
-  , v = require('./versez')
   , app = express.createServer();
+
+// versez app components
+var v =
+  { controller: require('./app/controller')
+  , routes: require('./app/routes')
+  , config: require('./config') };
 
 log(esc.cls + esc.cyan +
   "   _   _ ___________ _____ _____ ______\n" +

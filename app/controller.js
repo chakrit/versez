@@ -4,9 +4,8 @@
 (function() {
 
   var $E = module.exports = { }
-    , platform = require('./platform/controller')
-    , v = require('./versez')
-    , m = v.model;
+    , platform = require('../platform/controller')
+    , model = require('./model');
 
   with (platform) { // inject platform stuff into scope
 
