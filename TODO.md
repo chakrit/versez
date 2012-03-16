@@ -1,3 +1,4 @@
+* Facebook OAuth
 * Twitter OAuth
 * Verse list
 * Verse create
@@ -8,3 +9,8 @@
 * Share full story on Twitter
 * Share full story on Facebook
 * Launch!
+
+# Further additions
+
+* Shared code between client and server (+ ender?)
+
