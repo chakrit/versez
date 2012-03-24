@@ -3,7 +3,7 @@
 (function() {
 
   var $E = module.exports = { }
-    , define = require('../../platform/model');
+    , define = require('../platform/model');
 
   // model definitions
   $E.User = define.model('User',

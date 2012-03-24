@@ -3,7 +3,7 @@
 //   This simply maps controller to the express application
 module.exports = function(app) {
 
-  with (require('../../platform/routes')) {
+  with (require('../platform/routes')) {
     with (require('./controller')) {
 
       draw(app, function() {

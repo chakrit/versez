@@ -2,17 +2,15 @@
 // platform requires
 var express = require('express')
   , stylus = require('stylus')
-  , uglify = require('uglify-js')
+  , uglify = require('uglify-js-middleware')
   , log = require('./platform/log')
   , esc = require('./platform/esc')
   , app = express.createServer();
 
-require('uglify-js-middleware'); // modifies uglify-js
-
 // versez app components
 var v =
-  { controller: require('./app/core/controller')
-  , routes: require('./app/core/routes')
+  { controller: require('./server/controller')
+  , routes: require('./server/routes')
   , config: require('./config') };
 
 // folders
@@ -64,7 +62,7 @@ app.configure(function() {
       }
     }));
 
-  app.use(uglify.middleware(
+  app.use(uglify(
     { src: D(UGLY_SRC)
     , dest: D(UGLY_DEST)
     , uglyext: true }));
