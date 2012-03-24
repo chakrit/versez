@@ -4,7 +4,7 @@ require('../platform/test')(module, function(v, a, config) {
 
   var _ = require('underscore')
     , ID_NEW = require('../platform/model').ID_NEW
-    , model = require('../model')
+    , model = require('../app/core/model')
     , batch = { };
 
   // util for getting previous topics (which isn't quite available when doing async)
