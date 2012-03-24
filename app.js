@@ -1,6 +1,7 @@
 
 // platform requires
-var express = require('express')
+var join = require('path').join
+  , express = require('express')
   , stylus = require('stylus')
   , uglify = require('uglify-js-middleware')
   , log = require('./platform/log')
@@ -15,15 +16,11 @@ var v =
 
 // folders
 var PUBLIC = 'public'
-  , VIEWS = 'app/views'
-  , STYL_SRC = 'app/styl'
-  , STYL_DEST = 'public/css'
-  , UGLY_SRC = 'app/clientjs'
-  , UGLY_DEST = 'public/js';
+  , CLIENT = 'client'
+  , VIEWS = 'views';
 
 var D = function(folder) {
-  console.log([__dirname, folder].join('/'));
-  return [__dirname, folder].join('/');
+  return join(__dirname, folder);
 };
 
 
@@ -52,8 +49,8 @@ app.configure(function() {
 
   // js/css processors
   app.use(stylus.middleware(
-    { src: D(STYL_SRC)
-    , dest: D(STYL_DEST)
+    { src: D(CLIENT)
+    , dest: D(PUBLIC)
     , compile: function(str, path) {
         return stylus(str)
           .set('filename', path)
@@ -63,8 +60,8 @@ app.configure(function() {
     }));
 
   app.use(uglify(
-    { src: D(UGLY_SRC)
-    , dest: D(UGLY_DEST)
+    { src: D(CLIENT)
+    , dest: D(PUBLIC)
     , uglyext: true }));
 
   // app core
