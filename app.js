@@ -38,7 +38,7 @@ log.h1("VERSEZ - v" + v.config.version);
 log(esc.silver);
 
 // __________________________________________________________________
-log("Configuring app...");
+log("Configuring server...");
 
 app.configure(function() {
 
@@ -84,11 +84,10 @@ app.configure('production', function() {
 });
 
 // __________________________________________________________________
-log("Initializing routes...");
+log("Configuring routes...");
 v.routes(app);
 
 var port = v.config.server.port || process.env.PORT || 80;
 log("Starting up...");
 log("Listening on port " + port + "...");
 app.listen(port);
-

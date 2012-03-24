@@ -4,10 +4,9 @@
 (function() {
 
   var $E = module.exports = { }
-    , platform = require('../platform/controller')
     , model = require('./model');
 
-  with (platform) { // inject platform stuff into scope
+  with (require('../platform/controller')) { // inject platform stuff into scope
 
     $E.Home = new Controller(function(ctr) {
       ctr.index = function(c) {
