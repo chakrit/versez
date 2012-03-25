@@ -9,35 +9,37 @@
     , $E = module.exports = { };
 
   // define possible result types
-  $E.Result = function() {
-    return function(ctx) {
-      // TODO: Better log/reminder ?
-      console.log("Can't render empty result!");
-      ctx.response.send(404, { 'Content-Type': 'text/plain' }, '');
+  var defineResultType = function(name, resultFunc) {
+    $E[name] = function() {
+      var result = resultFunc.apply(this, arguments);
+      result._type = name; // type info used for testing/introspection
+      result['_is' + name] = true;
+
+      return result;
     };
   };
 
-  $E.Json = function(obj) {
+  defineResultType('Json', function(obj) {
     var json = _.has(obj, 'toJson') ? obj.toJson() : obj.toString();
     return function(ctx) {
       ctx.response.send(200, { 'Content-Type': 'application/json' }, json);
     };
-  };
+  });
 
-  $E.View = function(name, data) {
+  defineResultType('View', function(name, data) {
     return function(ctx) {
       ctx.response.render(name, data);
     };
-  };
+  });
 
-  $E.Error = function(code, message) {
+  defineResultType('Error', function(code, message) {
     code = code || 500;
     message = message || "Internal Server Error";
 
     return function(context) {
       context.response.send(code, { 'Content-Type': 'text/plain' }, message);
     };
-  };
+  });
 
   // controller definition function
   $E.Controller = function(init) {
@@ -60,7 +62,7 @@
 
         var callback = function(e, result) {
           if (e) result = $E.Error(500, e.toString());
-          result(context);
+          result(context); // render result
         };
 
         var result = action(context, callback);
@@ -80,6 +82,7 @@
       this[action] = wrapAction(ctr[action]);
     };
 
+    this.bare = ctr; // raw un-augmented controller object for testing
     return this;
   };
 
