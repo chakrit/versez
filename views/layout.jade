@@ -2,6 +2,36 @@
 html
   head
     title versez
-    link(rel='stylesheet', href='/css/site.css')
-    script(src='/js/site.ugly.js')
-  body!= body
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    block html_head
+      link(rel='stylesheet', href='/css/bootstrap.min.css')
+      link(rel='stylesheet', href='/css/bootstrap-responsive.min.css')
+      link(rel='stylesheet', href='/css/site.css')
+      script(src='/js/bootstrap.min.js')
+      script(src='/js/site.ugly.js')
+  body
+    .container-fluid
+      .row-fluid
+        .navbar.navbar-fixed-top
+          .navbar-inner
+            .container
+              a(class='brand', href="#") versez
+              ul
+                li: p hello
+      .row-fluid
+        .span4
+          :markdown
+            This is the _header_
+      .row-fluid
+        .span4
+          block sidebar
+            :markdown
+              This is the _sidebar_
+        .span4
+          block container
+            :markdown
+              This is the _main area_
+        .span4
+          block rightbar
+            :markdown
+              This is the _rightbar_

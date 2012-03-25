@@ -24,7 +24,8 @@
     "vows": ">= 0.0.1",
     "less": ">= 0.0.1",
     "uglify-js": ">= 0.0.1",
-    "uglify-js-middleware": ">= 0.0.1"
+    "uglify-js-middleware": ">= 0.0.1",
+    "markdown-js": ">= 0.0.1"
   },
   "devDependencies": {}
 }
