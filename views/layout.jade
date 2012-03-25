@@ -10,28 +10,24 @@ html
       script(src='/js/bootstrap.min.js')
       script(src='/js/site.ugly.js')
   body
-    .container-fluid
+    .container-fluid#page-container
       .row-fluid
-        .navbar.navbar-fixed-top
-          .navbar-inner
-            .container
-              a(class='brand', href="#") versez
-              ul
-                li: p hello
-      .row-fluid
-        .span4
-          :markdown
-            This is the _header_
-      .row-fluid
-        .span4
-          block sidebar
-            :markdown
-              This is the _sidebar_
-        .span4
-          block container
-            :markdown
-              This is the _main area_
-        .span4
-          block rightbar
-            :markdown
-              This is the _rightbar_
+        .span3.buffer-left.hidden-phone
+          // TODO: Add some neat art
+          span &nbsp;
+
+        .span6#page-inner-container
+          .row-fluid
+            .span12#page-header
+              include includes/header
+          .row-fluid
+            .span12#page-content
+              block content
+                p Under Contruction!
+          .row-fluid
+            .span12#page-footer
+              include includes/footer
+
+        .span3.buffer-right.hidden-phone
+          // TODO: Add some neat art
+          span &nbsp;
