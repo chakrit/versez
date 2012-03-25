@@ -64,9 +64,12 @@ app.configure(function() {
     , dest: D(PUBLIC)
     , uglyext: true }));
 
-  // app core
+  // view engine
   app.set('views', D(VIEWS));
   app.set('view engine', 'jade');
+  app.set('view options', { layout: false });
+
+  // app core
   app.use(app.router);
 
 });
